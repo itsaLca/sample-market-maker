@@ -245,7 +245,7 @@ class OrderManager:
             logger.info("Avg Entry Price: %.*f" % (tickLog, float(position['avgEntryPrice'])))
         logger.info("Contracts Traded This Run: %d" % (self.running_qty - self.starting_qty))
         logger.info("Total Contract Delta: %.4f XBT" % self.exchange.calc_delta()['spot'])
-        logger.info("Current Price: %.4f XBT" % self.exchange.get_ticker())
+        logger.info("Current Price: " + self.exchange.get_ticker() + " XBT")
 
     def get_ticker(self):
         ticker = self.exchange.get_ticker()
