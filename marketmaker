@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
 from market_maker import market_maker
-from market_maker import custom_strategy
+market_maker.run()
 
-#market_maker.run()
-custom_strategy.run()
