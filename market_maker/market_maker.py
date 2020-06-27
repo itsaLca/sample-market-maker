@@ -212,7 +212,6 @@ class OrderManager:
             logger.info("Initializing dry run. Orders printed below represent what would be posted to BitMEX.")
         else:
             logger.info("Order Manager initializing, connecting to BitMEX. Live run: executing real trades.")
-            logger.info("Test123")
 
         self.start_time = datetime.now()
         self.instrument = self.exchange.get_instrument()
