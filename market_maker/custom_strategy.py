@@ -8,7 +8,6 @@ class ParabolicSar:
     def calculate_psar():
 
 class PsarOrderManager:
-
     def __init__(self):
         self.exchange = ExchangeInterface(settings.DRY_RUN)
         # Once exchange is created, register exit handler that will always cancel orders
