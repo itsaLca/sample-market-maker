@@ -537,8 +537,8 @@ class OrderManager:
             logger.info("Low Price: " + str(self.lows[-1]))
             logger.info("Close Price: " + str(self.closes[-1]))
         else:
-            self.low = self.price if self.price < self.low
-            self.high = self.price if self.price > self.high
+            if self.price < self.low: self.low = self.price
+            if self.price > self.high: self.high = self.price 
 
         self.minute = datetime.now().minute
 
