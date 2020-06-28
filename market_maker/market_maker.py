@@ -203,6 +203,10 @@ class OrderManager:
         self.highs = []
         self.lows = []
         self.closes = []
+        self.price = self.exchange.get_ticker()["last"]
+        self.high = self.price
+        self.low = self.price
+        
         self.exchange = ExchangeInterface(settings.DRY_RUN)
         # Once exchange is created, register exit handler that will always cancel orders
         # on any error.
