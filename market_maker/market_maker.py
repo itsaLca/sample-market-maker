@@ -200,6 +200,9 @@ class ExchangeInterface:
 
 class OrderManager:
     def __init__(self):
+        self.highs = []
+        self.lows = []
+        self.closes = []
         self.exchange = ExchangeInterface(settings.DRY_RUN)
         # Once exchange is created, register exit handler that will always cancel orders
         # on any error.
@@ -245,7 +248,7 @@ class OrderManager:
             logger.info("Avg Entry Price: %.*f" % (tickLog, float(position['avgEntryPrice'])))
         logger.info("Contracts Traded This Run: %d" % (self.running_qty - self.starting_qty))
         logger.info("Total Contract Delta: %.4f XBT" % self.exchange.calc_delta()['spot'])
-        logger.info("Current Price: " + str(self.exchange.get_ticker()["buy"]) + " XBT")
+        logger.info("Current Price: " + str(self.exchange.get_ticker()["last"]) + " XBT")
         logger.info("Current Minute: " + str(datetime.now().minute))
 
     def get_ticker(self):
@@ -515,65 +518,29 @@ class OrderManager:
             self.sanity_check()  # Ensures health of mm - several cut-out points here
             self.print_status()  # Print skew, delta, etc
             self.place_orders()  # Creates desired orders and converges to existing orders
+            self.calc_psar()
 
     def restart(self):
         logger.info("Restarting the market maker...")
         os.execv(sys.executable, [sys.executable] + sys.argv)
 
-    def calcPsar(self):
-        if self.minute != datetime.time.minute():
-            self.minute = datetime.time.minute()
-        self.minute = datetime.time.minute()
+    def calc_psar(self):
+        self.price = self.exchange.get_ticker()["last"]
 
-        #this is common accelerating factors for forex and commodity
-        #for equity, af for each step could be set to 0.01
-        initial_af=0.02
-        step_af=0.02
-        end_af=0.2
+        if self.minute != datetime.now().minute:
+            self.closes.append(self.price)
+            self.highs.append(self.high)
+            self.lows.append(self.low)
+            self.high = self.price
+            self.low = self.price
+            logger.info("High Price: " + str(self.highs[-1]))
+            logger.info("Low Price: " + str(self.lows[-1]))
+            logger.info("Close Price: " + str(self.closes[-1]))
+        else:
+            self.low = self.price if self.price < self.low
+            self.high = self.price if self.price > self.high
 
-        new['trend']=0
-        new['sar']=0.0
-        new['real sar']=0.0
-        new['ep']=0.0
-        new['af']=0.0
-
-        #initial values for recursive calculation
-        new['trend'][1]=1 if new['Close'][1]>new['Close'][0] else -1
-        new['sar'][1]=new['High'][0] if new['trend'][1]>0 else new['Low'][0]
-        new.at[1,'real sar']=new['sar'][1]
-        new['ep'][1]=new['High'][1] if new['trend'][1]>0 else new['Low'][1]
-        new['af'][1]=initial_af
-
-        #calculation
-        for i in range(2,len(new)):
-
-            temp=new['sar'][i-1]+new['af'][i-1]*(new['ep'][i-1]-new['sar'][i-1])
-            if new['trend'][i-1]<0:
-                new.at[i,'sar']=max(temp,new['High'][i-1],new['High'][i-2])
-                temp=1 if new['sar'][i]<new['High'][i] else new['trend'][i-1]-1
-            else:
-                new.at[i,'sar']=min(temp,new['Low'][i-1],new['Low'][i-2])
-                temp=-1 if new['sar'][i]>new['Low'][i] else new['trend'][i-1]+1
-            new.at[i,'trend']=temp
-
-
-            if new['trend'][i]<0:
-                temp=min(new['Low'][i],new['ep'][i-1]) if new['trend'][i]!=-1 else new['Low'][i]
-            else:
-                temp=max(new['High'][i],new['ep'][i-1]) if new['trend'][i]!=1 else new['High'][i]
-            new.at[i,'ep']=temp
-
-
-            if np.abs(new['trend'][i])==1:
-                temp=new['ep'][i-1]
-                new.at[i,'af']=initial_af
-            else:
-                temp=new['sar'][i]
-                if new['ep'][i]==new['ep'][i-1]:
-                    new.at[i,'af']=new['af'][i-1]
-                else:
-                    new.at[i,'af']=min(end_af,new['af'][i-1]+step_af)
-            new.at[i,'real sar']=temp
+        self.minute = datetime.now().minute
 
 #
 # Helpers
