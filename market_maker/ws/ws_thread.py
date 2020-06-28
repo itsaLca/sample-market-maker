@@ -7,6 +7,7 @@ from time import sleep
 import json
 import decimal
 import logging
+from datetime import datetime
 from market_maker.settings import settings
 from market_maker.auth.APIKeyAuth import generate_expires, generate_signature
 from market_maker.utils import log
@@ -34,6 +35,10 @@ class BitMEXWebsocket():
     MAX_TABLE_LEN = 200
 
     def __init__(self):
+        self.opens = []
+        self.highs = []
+        self.lows = []
+        self.closes = []
         self.__reset()
 
     def __del__(self):
@@ -105,6 +110,38 @@ class BitMEXWebsocket():
 
         # The instrument has a tickSize. Use it to round values.
         return {k: toNearest(float(v or 0), instrument['tickSize']) for k, v in iteritems(ticker)}
+
+    #
+    #Keep track of OHLC
+    #
+    def update_hlc(self):
+        self.price = self.get_ticker()["last"]
+        if self.minute != datetime.now().minute:
+            self.closes.append(self.price)
+            self.highs.append(self.high)
+            self.lows.append(self.low)
+            self.high = self.price
+            self.low = self.price
+            logger.info("High Price: " + str(self.highs[-1]))
+            logger.info("Low Price: " + str(self.lows[-1]))
+            logger.info("Close Price: " + str(self.closes[-1]))
+        else:
+            if self.price < self.low: self.low = self.price
+            if self.price > self.high: self.high = self.price
+        self.minute = datetime.now().minute
+
+    #
+    #Returns OHLC as Dict
+    #
+    def get_ohlc(self):
+        thisdict = {
+            "open": self.opens,
+            "high": self.highs,
+            "low": self.lows,
+            "close": self.closes
+        }
+
+
 
     def funds(self):
         return self.data['margin'][0]
@@ -324,4 +361,3 @@ if __name__ == "__main__":
     ws.connect("https://testnet.bitmex.com/api/v1")
     while(ws.ws.sock.connected):
         sleep(1)
-

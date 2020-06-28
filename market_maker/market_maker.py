@@ -218,6 +218,7 @@ class OrderManager:
         self.instrument = self.exchange.get_instrument()
         self.starting_qty = self.exchange.get_delta()
         self.running_qty = self.starting_qty
+        # Attributes needed for psar calculation
         self.highs = []
         self.lows = []
         self.closes = []
@@ -522,13 +523,13 @@ class OrderManager:
             self.sanity_check()  # Ensures health of mm - several cut-out points here
             self.print_status()  # Print skew, delta, etc
             self.place_orders()  # Creates desired orders and converges to existing orders
-            self.calc_psar()
+            self.update_hlc()
 
     def restart(self):
         logger.info("Restarting the market maker...")
         os.execv(sys.executable, [sys.executable] + sys.argv)
 
-    def calc_psar(self):
+    def update_hlc(self):
         self.price = self.exchange.get_ticker()["last"]
 
         if self.minute != datetime.now().minute:
