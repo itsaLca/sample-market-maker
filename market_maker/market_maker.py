@@ -217,6 +217,7 @@ class OrderManager:
             logger.info("Order Manager initializing, connecting to BitMEX. Live run: executing real trades.")
 
         self.start_time = datetime.now()
+        self.minute = self.start_time.minute
         self.instrument = self.exchange.get_instrument()
         self.starting_qty = self.exchange.get_delta()
         self.running_qty = self.starting_qty
@@ -538,7 +539,7 @@ class OrderManager:
             logger.info("Close Price: " + str(self.closes[-1]))
         else:
             if self.price < self.low: self.low = self.price
-            if self.price > self.high: self.high = self.price 
+            if self.price > self.high: self.high = self.price
 
         self.minute = datetime.now().minute
 
