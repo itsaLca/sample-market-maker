@@ -200,13 +200,6 @@ class ExchangeInterface:
 
 class OrderManager:
     def __init__(self):
-        self.highs = []
-        self.lows = []
-        self.closes = []
-        self.price = self.exchange.get_ticker()["last"]
-        self.high = self.price
-        self.low = self.price
-        
         self.exchange = ExchangeInterface(settings.DRY_RUN)
         # Once exchange is created, register exit handler that will always cancel orders
         # on any error.
@@ -225,6 +218,12 @@ class OrderManager:
         self.instrument = self.exchange.get_instrument()
         self.starting_qty = self.exchange.get_delta()
         self.running_qty = self.starting_qty
+        self.highs = []
+        self.lows = []
+        self.closes = []
+        self.price = self.exchange.get_ticker()["last"]
+        self.high = self.price
+        self.low = self.price
         self.reset()
 
     def reset(self):
