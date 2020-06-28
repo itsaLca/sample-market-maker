@@ -246,7 +246,7 @@ class OrderManager:
         logger.info("Contracts Traded This Run: %d" % (self.running_qty - self.starting_qty))
         logger.info("Total Contract Delta: %.4f XBT" % self.exchange.calc_delta()['spot'])
         logger.info("Current Price: " + str(self.exchange.get_ticker()["buy"]) + " XBT")
-        logger.info("Current Minute: " + str(datetime.time.minute))
+        logger.info("Current Minute: " + str(datetime.now().minute))
 
     def get_ticker(self):
         ticker = self.exchange.get_ticker()
