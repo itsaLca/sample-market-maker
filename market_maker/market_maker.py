@@ -547,6 +547,11 @@ class OrderManager:
 
         self.minute = datetime.now().minute
 
+    def calc_psar():
+        if len(self.closes > 2):
+            trend = 1 if self.closes
+
+
 #
 # Helpers
 #
