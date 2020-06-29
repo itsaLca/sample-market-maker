@@ -123,6 +123,8 @@ class BitMEXWebsocket():
     #
     def update_ohlc(self):
         self.price = self.get_ticker(self.symbol)["last"]
+        self.high = max(self.price, self.high)
+        self.low = min(self.price, self.low)
         if self.minute != datetime.now().minute:
             self.closes.append(self.price)
             self.opens.append(self.price)
@@ -130,9 +132,6 @@ class BitMEXWebsocket():
             self.lows.append(self.low)
             self.high = self.price
             self.low = self.price
-        else:
-            if self.price < self.low: self.low = self.price
-            if self.price > self.high: self.high = self.price
         self.minute = datetime.now().minute
 
     #
