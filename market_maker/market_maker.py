@@ -527,6 +527,7 @@ class OrderManager:
 
     def update_psar(self):
         ohlc = self.exchange.get_ohlc()
+        logger.info(str(len(ohlc["close"])))
         if len(ohlc["close"]) > 1 and self.minute != datetime.now().minute:
             trend = 1 if ohlc["high"][1] >= ohlc["high"][0] or ohlc["low"][0] <= ohlc["low"][1] else -1
             psar = ohlc["low"][0] if trend == 1 else ohlc["high"][0]
