@@ -218,17 +218,9 @@ class OrderManager:
             logger.info("Order Manager initializing, connecting to BitMEX. Live run: executing real trades.")
 
         self.start_time = datetime.now()
-        self.minute = self.start_time.minute
         self.instrument = self.exchange.get_instrument()
         self.starting_qty = self.exchange.get_delta()
         self.running_qty = self.starting_qty
-        # Attributes needed for psar calculation
-        self.highs = []
-        self.lows = []
-        self.closes = []
-        self.price = self.exchange.get_ticker()["last"]
-        self.high = self.price
-        self.low = self.price
         self.reset()
 
     def reset(self):
@@ -527,30 +519,14 @@ class OrderManager:
             self.sanity_check()  # Ensures health of mm - several cut-out points here
             self.print_status()  # Print skew, delta, etc
             self.place_orders()  # Creates desired orders and converges to existing orders
-            self.update_hlc()
+            self.update_psar()
 
     def restart(self):
         logger.info("Restarting the market maker...")
         os.execv(sys.executable, [sys.executable] + sys.argv)
 
-    def update_hlc(self):
-        self.price = self.exchange.get_ticker()["last"]
-
-        if self.minute != datetime.now().minute:
-            self.closes.append(self.price)
-            self.highs.append(self.high)
-            self.lows.append(self.low)
-            self.high = self.price
-            self.low = self.price
-            #logger.info("High Price: " + str(self.highs[-1]))
-            #logger.info("Low Price: " + str(self.lows[-1]))
-            #logger.info("Close Price: " + str(self.closes[-1]))
-            logger.info(json.dumps(self.exchange.get_ohlc()))
-        else:
-            if self.price < self.low: self.low = self.price
-            if self.price > self.high: self.high = self.price
-
-        self.minute = datetime.now().minute
+    def update_psar(self):
+        self.ohlc = self.exchange.get_ohlc()
 
 
 
