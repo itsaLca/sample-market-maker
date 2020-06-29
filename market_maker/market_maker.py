@@ -526,9 +526,38 @@ class OrderManager:
         os.execv(sys.executable, [sys.executable] + sys.argv)
 
     def update_psar(self):
-        self.ohlc = self.exchange.get_ohlc()
-
-
+        ohlc = self.exchange.get_ohlc()
+        if ohlc["close"].len() > 1:
+            trend = 1 if ohlc["high"][1] >= ohlc["high"][0] or ohlc["low"][0] <= ohlc["low"][1] else trend = -1
+            psar = ohlc["low"][0] if trend = 1 else sar = ohlc["high"][0]
+            ep = ohlc["high"][0] if trend = 1 else ep = ohlc["low"][0]
+            saf = 0.02
+            af = 0.02
+            a = 0.02
+            ma = 0.2
+            nextPsar = psar
+            for i in range(1, ["close"].len()):
+                if trend = 1:
+                    if ohlc["high"][i] > ep:
+                        ep = ohlc["high"][i]
+                        af = max(ma, af + a)
+                    nextPsar = min(psar + af * (ep - psar), ohlc["low"][i], ohlc["low"][i-1])
+                    if psar > ohlc["low"][i]:
+                        trend = -1
+                        nextPsar = ep
+                        ep = ohlc["low"][i]
+                        af = saf
+                else:
+                    if ohlc["low"][i] < ep:
+                        ep = ohlc["low"][i]
+                        af = max(ma, af + a)
+                    nextPsar = max(psar + af * (ep - psar), ohlc["high"][i], ohlc["high"][i-1])
+                    if psar < ohlc["high"][i]:
+                        trend = 1
+                        nextPsar = ep
+                        ep = ohlc["high"][i]
+                        af = saf
+        logger.info("Current PSAR: " + str(nextPsar))
 
 #
 # Helpers
