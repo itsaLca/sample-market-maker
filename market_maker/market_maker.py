@@ -526,43 +526,44 @@ class OrderManager:
         os.execv(sys.executable, [sys.executable] + sys.argv)
 
     def update_psar(self):
-        ohlc = self.exchange.get_ohlc()
-        logger.info(str(len(ohlc["close"])))
-        if len(ohlc["close"]) > 1 and self.minute != datetime.now().minute:
-            trend = 1 if ohlc["high"][1] >= ohlc["high"][0] or ohlc["low"][0] <= ohlc["low"][1] else -1
-            psar = ohlc["low"][0] if trend == 1 else ohlc["high"][0]
-            ep = ohlc["high"][0] if trend == 1 else ohlc["low"][0]
+        self.ohlc = self.exchange.get_ohlc()
+        logger.info(str(len(self.ohlc["close"])))
+        if len(self.ohlc["close"]) > 1 and self.minute != datetime.now().minute:
+            trend = 1 if self.ohlc["high"][1] >= self.ohlc["high"][0] or self.ohlc["low"][0] <= self.ohlc["low"][1] else -1
+            psar = self.ohlc["low"][0] if trend == 1 else self.ohlc["high"][0]
+            self.ep = self.ohlc["high"][0] if trend == 1 else self.ohlc["low"][0]
             saf = 0.02
             af = 0.02
             a = 0.02
             ma = 0.2
-            nextPsar = psar
-            for i in range(1, len(ohlc["close"])):
+            self.nextPsar = psar
+            for i in range(1, len(self.ohlc["close"])):
                 if trend == 1:
-                    if ohlc["high"][i] > ep:
-                        ep = ohlc["high"][i]
+                    if self.ohlc["high"][i] > self.ep:
+                        self.ep = self.ohlc["high"][i]
                         af = min(ma, af + a)
-                    nextPsar = min(psar + af * (ep - psar), ohlc["low"][i], ohlc["low"][i-1])
-                    if psar > ohlc["low"][i]:
+                    self.nextPsar = min(psar + af * (self.ep - psar), self.ohlc["low"][i], self.ohlc["low"][i-1])
+                    if psar > self.ohlc["low"][i]:
                         trend = -1
-                        nextPsar = ep
-                        ep = ohlc["low"][i]
+                        self.nextPsar = self.ep
+                        self.ep = self.ohlc["low"][i]
                         af = saf
                 else:
-                    if ohlc["low"][i] < ep:
-                        ep = ohlc["low"][i]
+                    if self.ohlc["low"][i] < self.ep:
+                        self.ep = self.ohlc["low"][i]
                         af = min(ma, af + a)
-                    nextPsar = max(psar + af * (ep - psar), ohlc["high"][i], ohlc["high"][i-1])
-                    if psar < ohlc["high"][i]:
+                    self.nextPsar = max(psar + af * (self.ep - psar), self.ohlc["high"][i], self.ohlc["high"][i-1])
+                    if psar < self.ohlc["high"][i]:
                         trend = 1
-                        nextPsar = ep
-                        ep = ohlc["high"][i]
+                        self.nextPsar = self.ep
+                        self.ep = self.ohlc["high"][i]
                         af = saf
-            logger.info("Last PSAR: " + str(nextPsar))
-            logger.info("Last Open: " + str(ohlc["open"][-1]))
-            logger.info("Last High: " + str(ohlc["high"][-1]))
-            logger.info("Last Low: " + str(ohlc["low"][-1]))
-            logger.info("Last Close: " + str(ohlc["close"][-1]))
+        if hasattr(self, "ep"):
+            logger.info("Last PSAR: " + str(self.nextPsar))
+            logger.info("Last Open: " + str(self.ohlc["open"][-2]))
+            logger.info("Last High: " + str(self.ohlc["high"][-1]))
+            logger.info("Last Low: " + str(self.ohlc["low"][-1]))
+            logger.info("Last Close: " + str(self.ohlc["close"][-1]))
         self.minute = datetime.now().minute
 
 #
