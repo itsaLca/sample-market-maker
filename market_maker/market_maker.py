@@ -557,7 +557,7 @@ class OrderManager:
                         nextPsar = ep
                         ep = ohlc["high"][i]
                         af = saf
-        logger.info("Current PSAR: " + str(nextPsar))
+            logger.info("Current PSAR: " + str(nextPsar))
 
 #
 # Helpers
