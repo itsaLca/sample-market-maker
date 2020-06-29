@@ -7,6 +7,7 @@ import random
 import requests
 import atexit
 import signal
+import json
 
 from market_maker import bitmex
 from market_maker.settings import settings
@@ -544,7 +545,7 @@ class OrderManager:
             #logger.info("High Price: " + str(self.highs[-1]))
             #logger.info("Low Price: " + str(self.lows[-1]))
             #logger.info("Close Price: " + str(self.closes[-1]))
-            logger.info(type(self.exchange.get_ohlc()))
+            logger.info(type(json.dumps(self.exchange.get_ohlc())))
         else:
             if self.price < self.low: self.low = self.price
             if self.price > self.high: self.high = self.price
