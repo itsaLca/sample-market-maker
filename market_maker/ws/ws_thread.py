@@ -120,7 +120,7 @@ class BitMEXWebsocket():
     #
     #Keep track of OHLC
     #
-    def update_hlc(self):
+    def update_ohlc(self):
         self.price = self.get_ticker(self.symbol)["last"]
         if self.minute != datetime.now().minute:
             self.closes.append(self.price)
@@ -132,6 +132,7 @@ class BitMEXWebsocket():
             logger.info("High Price: " + str(self.highs[-1]))
             logger.info("Low Price: " + str(self.lows[-1]))
             logger.info("Close Price: " + str(self.closes[-1]))
+            logger.info(type(self.get_ohlc))
         else:
             if self.price < self.low: self.low = self.price
             if self.price > self.high: self.high = self.price
@@ -334,6 +335,7 @@ class BitMEXWebsocket():
                     raise Exception("Unknown action: %s" % action)
         except:
             logger.error(traceback.format_exc())
+        self.update_ohlc()
 
     def __on_open(self):
         logger.debug("Websocket Opened.")
