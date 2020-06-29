@@ -35,7 +35,7 @@ class ExchangeInterface:
                                     orderIDPrefix=settings.ORDERID_PREFIX, postOnly=settings.POST_ONLY,
                                     timeout=settings.TIMEOUT)
 
-    def get_ohlc:
+    def get_ohlc(self):
         return self.bitmex.get_ohlc()
 
     def cancel_order(self, order):
