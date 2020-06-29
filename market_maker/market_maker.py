@@ -527,7 +527,7 @@ class OrderManager:
 
     def update_psar(self):
         ohlc = self.exchange.get_ohlc()
-        if ohlc["close"].len() > 1:
+        if len(ohlc["close"]) > 1:
             trend = 1 if ohlc["high"][1] >= ohlc["high"][0] or ohlc["low"][0] <= ohlc["low"][1] else -1
             psar = ohlc["low"][0] if trend == 1 else ohlc["high"][0]
             ep = ohlc["high"][0] if trend == 1 else ohlc["low"][0]
@@ -536,7 +536,7 @@ class OrderManager:
             a = 0.02
             ma = 0.2
             nextPsar = psar
-            for i in range(1, ["close"].len()):
+            for i in range(1, len(ohlc["close"])):
                 if trend == 1:
                     if ohlc["high"][i] > ep:
                         ep = ohlc["high"][i]
