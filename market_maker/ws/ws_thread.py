@@ -75,7 +75,7 @@ class BitMEXWebsocket():
         logger.info('Got all market data. Starting.')
 
         #Add first open to opens list, attributes for ohlc
-        self.price = self.get_ticker()["last"]
+        self.price = self.get_ticker(self.symbol)["last"]
         self.opens.append(self.price)
         self.high = self.price
         self.low = self.price
@@ -121,7 +121,7 @@ class BitMEXWebsocket():
     #Keep track of OHLC
     #
     def update_hlc(self):
-        self.price = self.get_ticker()["last"]
+        self.price = self.get_ticker(self.symbol)["last"]
         if self.minute != datetime.now().minute:
             self.closes.append(self.price)
             self.opens.append(self.price)
