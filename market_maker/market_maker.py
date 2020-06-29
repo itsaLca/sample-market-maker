@@ -538,9 +538,10 @@ class OrderManager:
             self.lows.append(self.low)
             self.high = self.price
             self.low = self.price
-            logger.info("High Price: " + str(self.highs[-1]))
-            logger.info("Low Price: " + str(self.lows[-1]))
-            logger.info("Close Price: " + str(self.closes[-1]))
+            #logger.info("High Price: " + str(self.highs[-1]))
+            #logger.info("Low Price: " + str(self.lows[-1]))
+            #logger.info("Close Price: " + str(self.closes[-1]))
+            logger.info(type(self.exchange.get_ohlc()))
         else:
             if self.price < self.low: self.low = self.price
             if self.price > self.high: self.high = self.price
