@@ -74,6 +74,12 @@ class BitMEXWebsocket():
             self.__wait_for_account()
         logger.info('Got all market data. Starting.')
 
+        #Add first open to opens list, attributes for ohlc
+        self.price = self.get_ticker()["last"]
+        self.opens.append(self.price)
+        self.high = self.price
+        self.low = self.price
+
     #
     # Data methods
     #
@@ -118,6 +124,7 @@ class BitMEXWebsocket():
         self.price = self.get_ticker()["last"]
         if self.minute != datetime.now().minute:
             self.closes.append(self.price)
+            self.opens.append(self.price)
             self.highs.append(self.high)
             self.lows.append(self.low)
             self.high = self.price
@@ -134,12 +141,13 @@ class BitMEXWebsocket():
     #Returns OHLC as Dict
     #
     def get_ohlc(self):
-        thisdict = {
+        ohlc = {
             "open": self.opens,
             "high": self.highs,
             "low": self.lows,
             "close": self.closes
         }
+        return ohlc
 
 
 
