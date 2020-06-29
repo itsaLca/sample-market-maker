@@ -216,7 +216,7 @@ class OrderManager:
             logger.info("Initializing dry run. Orders printed below represent what would be posted to BitMEX.")
         else:
             logger.info("Order Manager initializing, connecting to BitMEX. Live run: executing real trades.")
-
+        self.minute = datetime.now().minute
         self.start_time = datetime.now()
         self.instrument = self.exchange.get_instrument()
         self.starting_qty = self.exchange.get_delta()
@@ -527,7 +527,7 @@ class OrderManager:
 
     def update_psar(self):
         ohlc = self.exchange.get_ohlc()
-        if len(ohlc["close"]) > 1:
+        if len(ohlc["close"]) > 1 and self.minute != datetime.now().minute:
             trend = 1 if ohlc["high"][1] >= ohlc["high"][0] or ohlc["low"][0] <= ohlc["low"][1] else -1
             psar = ohlc["low"][0] if trend == 1 else ohlc["high"][0]
             ep = ohlc["high"][0] if trend == 1 else ohlc["low"][0]
@@ -557,7 +557,12 @@ class OrderManager:
                         nextPsar = ep
                         ep = ohlc["high"][i]
                         af = saf
-            logger.info("Current PSAR: " + str(nextPsar))
+            logger.info("Last PSAR: " + str(nextPsar))
+            logger.info("Last Open: " + str(ohlc["open"][-1]))
+            logger.info("Last High: " + str(ohlc["high"][-1]))
+            logger.info("Last Low: " + str(ohlc["low"][-1]))
+            logger.info("Last Close: " + str(ohlc["close"][-1]))
+        self.minute = datetime.now().minute
 
 #
 # Helpers
