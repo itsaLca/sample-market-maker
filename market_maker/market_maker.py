@@ -540,7 +540,7 @@ class OrderManager:
                 if trend == 1:
                     if ohlc["high"][i] > ep:
                         ep = ohlc["high"][i]
-                        af = max(ma, af + a)
+                        af = min(ma, af + a)
                     nextPsar = min(psar + af * (ep - psar), ohlc["low"][i], ohlc["low"][i-1])
                     if psar > ohlc["low"][i]:
                         trend = -1
@@ -550,7 +550,7 @@ class OrderManager:
                 else:
                     if ohlc["low"][i] < ep:
                         ep = ohlc["low"][i]
-                        af = max(ma, af + a)
+                        af = min(ma, af + a)
                     nextPsar = max(psar + af * (ep - psar), ohlc["high"][i], ohlc["high"][i-1])
                     if psar < ohlc["high"][i]:
                         trend = 1
