@@ -35,6 +35,9 @@ class ExchangeInterface:
                                     orderIDPrefix=settings.ORDERID_PREFIX, postOnly=settings.POST_ONLY,
                                     timeout=settings.TIMEOUT)
 
+    def get_ohlc:
+        return self.bitmex.get_ohlc()
+
     def cancel_order(self, order):
         tickLog = self.get_instrument()['tickLog']
         logger.info("Canceling: %s %d @ %.*f" % (order['side'], order['orderQty'], tickLog, order['price']))
