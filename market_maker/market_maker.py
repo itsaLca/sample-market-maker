@@ -529,15 +529,15 @@ class OrderManager:
         ohlc = self.exchange.get_ohlc()
         if ohlc["close"].len() > 1:
             trend = 1 if ohlc["high"][1] >= ohlc["high"][0] or ohlc["low"][0] <= ohlc["low"][1] else -1
-            psar = ohlc["low"][0] if trend = 1 else ohlc["high"][0]
-            ep = ohlc["high"][0] if trend = 1 else ohlc["low"][0]
+            psar = ohlc["low"][0] if trend == 1 else ohlc["high"][0]
+            ep = ohlc["high"][0] if trend == 1 else ohlc["low"][0]
             saf = 0.02
             af = 0.02
             a = 0.02
             ma = 0.2
             nextPsar = psar
             for i in range(1, ["close"].len()):
-                if trend = 1:
+                if trend == 1:
                     if ohlc["high"][i] > ep:
                         ep = ohlc["high"][i]
                         af = max(ma, af + a)
