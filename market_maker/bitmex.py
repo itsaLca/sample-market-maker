@@ -104,6 +104,9 @@ class BitMEX(object):
                 return fn(self, *args, **kwargs)
         return wrapped
 
+    def get_ohlc(self):
+        return self.ws.get_ohlc()
+
     @authentication_required
     def funds(self):
         """Get your current balance."""
