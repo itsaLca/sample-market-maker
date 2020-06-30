@@ -39,6 +39,7 @@ class BitMEXWebsocket():
         self.highs = []
         self.lows = []
         self.closes = []
+        self.minutes = []
         self.__reset()
 
     def __del__(self):
@@ -130,6 +131,7 @@ class BitMEXWebsocket():
             self.opens.append(self.price)
             self.highs.append(self.high)
             self.lows.append(self.low)
+            self.minutes.append(self.minute)
             self.high = self.price
             self.low = self.price
         self.minute = datetime.now().minute
@@ -142,7 +144,8 @@ class BitMEXWebsocket():
             "open": self.opens,
             "high": self.highs,
             "low": self.lows,
-            "close": self.closes
+            "close": self.closes,
+            "minute": self.minutes
         }
         return ohlc
 

@@ -540,7 +540,7 @@ class OrderManager:
         self.askPrice = self.exchange.get_ticker()["sell"]
         self.bidPrice = self.exchange.get_ticker()["buy"]
         self.ohlc = self.exchange.get_ohlc()
-        if len(self.ohlc["close"]) > 1 and self.minute != datetime.now().minute:
+        if len(self.ohlc["close"]) > 1 and self.minute != self.ohlc["minute"][-1]:
             trend = 1 if self.ohlc["high"][1] >= self.ohlc["high"][0] or self.ohlc["low"][0] <= self.ohlc["low"][1] else -1
             psar = self.ohlc["low"][0] if trend == 1 else self.ohlc["high"][0]
             self.ep = self.ohlc["high"][0] if trend == 1 else self.ohlc["low"][0]
@@ -571,7 +571,7 @@ class OrderManager:
                         self.ep = self.ohlc["high"][i]
                         af = saf
                 psar = self.nextPsar
-        self.minute = datetime.now().minute
+        self.minute = self.ohlc["minute"][-1]
 
 #
 # Helpers
