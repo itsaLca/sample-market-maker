@@ -253,13 +253,13 @@ class OrderManager:
         logger.info("Contracts Traded This Run: %d" % (self.running_qty - self.starting_qty))
         logger.info("Total Contract Delta: %.4f XBT" % self.exchange.calc_delta()['spot'])
         logger.info("Current Price: " + str(self.exchange.get_ticker()["last"]) + " XBT")
-        logger.info("Last Minute: " + str(datetime.now().minute - 1))
         if hasattr(self, "ep"):
-            logger.info("Last PSAR: " + str(self.nextPsar))
+            logger.info("Last Minute: " + str(self.ohlc["minute"][-1]))
             logger.info("Last Open: " + str(self.ohlc["open"][-2]))
             logger.info("Last High: " + str(self.ohlc["high"][-1]))
             logger.info("Last Low: " + str(self.ohlc["low"][-1]))
             logger.info("Last Close: " + str(self.ohlc["close"][-1]))
+            logger.info("Last PSAR: " + str(self.nextPsar))
 
     def get_ticker(self):
         ticker = self.exchange.get_ticker()
@@ -539,38 +539,7 @@ class OrderManager:
         self.lastPrice = self.exchange.get_ticker()["last"]
         self.askPrice = self.exchange.get_ticker()["sell"]
         self.bidPrice = self.exchange.get_ticker()["buy"]
-        self.ohlc = self.exchange.get_ohlc()
-        if len(self.ohlc["close"]) > 1 and self.minute != self.ohlc["minute"][-1]:
-            trend = 1 if self.ohlc["high"][1] >= self.ohlc["high"][0] or self.ohlc["low"][0] <= self.ohlc["low"][1] else -1
-            psar = self.ohlc["low"][0] if trend == 1 else self.ohlc["high"][0]
-            self.ep = self.ohlc["high"][0] if trend == 1 else self.ohlc["low"][0]
-            saf = 0.02
-            af = 0.02
-            a = 0.02
-            ma = 0.2
-            self.nextPsar = psar
-            for i in range(1, len(self.ohlc["close"])):
-                if trend == 1:
-                    if self.ohlc["high"][i] > self.ep:
-                        self.ep = self.ohlc["high"][i]
-                        af = min(ma, af + a)
-                    self.nextPsar = min(psar + af * (self.ep - psar), self.ohlc["low"][i], self.ohlc["low"][i-1])
-                    if psar > self.ohlc["low"][i]:
-                        trend = -1
-                        self.nextPsar = self.ep
-                        self.ep = self.ohlc["low"][i]
-                        af = saf
-                else:
-                    if self.ohlc["low"][i] < self.ep:
-                        self.ep = self.ohlc["low"][i]
-                        af = min(ma, af + a)
-                    self.nextPsar = max(psar + af * (self.ep - psar), self.ohlc["high"][i], self.ohlc["high"][i-1])
-                    if psar < self.ohlc["high"][i]:
-                        trend = 1
-                        self.nextPsar = self.ep
-                        self.ep = self.ohlc["high"][i]
-                        af = saf
-                psar = self.nextPsar
+        self.ohlc = self.exchange.get_ohlc()    
         self.minute = self.ohlc["minute"][-1]
 
 #
