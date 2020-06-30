@@ -39,6 +39,9 @@ class ExchangeInterface:
     def get_ohlc(self):
         return self.bitmex.get_ohlc()
 
+    def place_order(self, quantity, price):
+        self.bitmex.place_order(quantity, price)
+
     def cancel_order(self, order):
         tickLog = self.get_instrument()['tickLog']
         logger.info("Canceling: %s %d @ %.*f" % (order['side'], order['orderQty'], tickLog, order['price']))
@@ -250,7 +253,7 @@ class OrderManager:
         logger.info("Contracts Traded This Run: %d" % (self.running_qty - self.starting_qty))
         logger.info("Total Contract Delta: %.4f XBT" % self.exchange.calc_delta()['spot'])
         logger.info("Current Price: " + str(self.exchange.get_ticker()["last"]) + " XBT")
-        logger.info("Last Minute: " + str(datetime.now().minute))
+        logger.info("Last Minute: " + str(datetime.now().minute - 1))
         if hasattr(self, "ep"):
             logger.info("Last PSAR: " + str(self.nextPsar))
             logger.info("Last Open: " + str(self.ohlc["open"][-2]))
@@ -464,12 +467,12 @@ class OrderManager:
         ticker = self.get_ticker()
 
         # Sanity check:
-        if self.get_price_offset(-1) >= ticker["sell"] or self.get_price_offset(1) <= ticker["buy"]:
-            logger.error("Buy: %s, Sell: %s" % (self.start_position_buy, self.start_position_sell))
-            logger.error("First buy position: %s\nBitMEX Best Ask: %s\nFirst sell position: %s\nBitMEX Best Bid: %s" %
-                         (self.get_price_offset(-1), ticker["sell"], self.get_price_offset(1), ticker["buy"]))
-            logger.error("Sanity check failed, exchange data is inconsistent")
-            self.exit()
+        #if self.get_price_offset(-1) >= ticker["sell"] or self.get_price_offset(1) <= ticker["buy"]:
+        #    logger.error("Buy: %s, Sell: %s" % (self.start_position_buy, self.start_position_sell))
+        #    logger.error("First buy position: %s\nBitMEX Best Ask: %s\nFirst sell position: %s\nBitMEX Best Bid: %s" %
+        #                 (self.get_price_offset(-1), ticker["sell"], self.get_price_offset(1), ticker["buy"]))
+        #    logger.error("Sanity check failed, exchange data is inconsistent")
+        #    self.exit()
 
         # Messaging if the position limits are reached
         if self.long_position_limit_exceeded():
@@ -523,17 +526,20 @@ class OrderManager:
                 self.restart()
 
             self.sanity_check()  # Ensures health of mm - several cut-out points here
-            self.print_status()  # Print skew, delta, etc
-            self.place_orders()  # Creates desired orders and converges to existing orders
             self.update_psar()
+            self.print_status()  # Print skew, delta, etc
+            #self.place_orders()  # Creates desired orders and converges to existing orders
+
 
     def restart(self):
         logger.info("Restarting the market maker...")
         os.execv(sys.executable, [sys.executable] + sys.argv)
 
     def update_psar(self):
+        self.lastPrice = self.exchange.get_ticker()["last"]
+        self.askPrice = self.exchange.get_ticker()["sell"]
+        self.bidPrice = self.exchange.get_ticker()["buy"]
         self.ohlc = self.exchange.get_ohlc()
-        logger.info(str(len(self.ohlc["close"])))
         if len(self.ohlc["close"]) > 1 and self.minute != datetime.now().minute:
             trend = 1 if self.ohlc["high"][1] >= self.ohlc["high"][0] or self.ohlc["low"][0] <= self.ohlc["low"][1] else -1
             psar = self.ohlc["low"][0] if trend == 1 else self.ohlc["high"][0]
